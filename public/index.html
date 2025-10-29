@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lost & Found Campus Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Roboto&display=swap" rel="stylesheet">
+<!-- Prevent Google Translate UI for this page -->
+<meta name="google" content="notranslate">
+<style>
+/* ===========================
+   Base styles
+   =========================== */
+* { box-sizing: border-box; margin:0; padding:0; font-family: 'Roboto', sans-serif; transition: all 0.3s ease; }
+body { 
+  background: linear-gradient(135deg, #d0e7f9, #e0f7fa, #f0f4f8);
+  color: #0D3B66;
+  min-height: 100vh;
+}
+h1,h2,h3 { font-family: 'Poppins', sans-serif; }
+
+/* ===========================
+   Header
+   =========================== */
+header {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  position: sticky;
+  top:0;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+header h1 { font-weight:700; font-size:1.5rem; }
+.menu-btn { font-size:28px; cursor:pointer; background:none; border:none; color:white; }
+
+/* ===========================
+   Persistent sidebar toggle
+   =========================== */
+.sidebar-toggle {
+  position: fixed;
+  left: 12px;
+  top: 18px;
+  z-index: 2500;
+  width:44px;
+  height:44px;
+  border-radius:10px;
+  background: linear-gradient(90deg,#ffffff,#e6f0ff);
+  border: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+  cursor: pointer;
+  font-size:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+body.dark .sidebar-toggle { background: linear-gradient(90deg,#2b2b2b,#1f1f1f); color:#fff; }
+
+/* ===========================
+   Theme toggle
+   (unchanged visual structure)
+   =========================== */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  background: #e0e0e0;
+  border-radius: 50px;
+  padding: 4px;
+  position: relative;
+  width: 320px;
+  height: 50px;
+  cursor: pointer;
+}
+.theme-slider {
+  position: absolute;
+  width: 50%;
+  height: 42px;
+  border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.theme-slider.day { background: linear-gradient(90deg, #E91E63, #FF9800); left: 4px; }
+.theme-slider.night { background: linear-gradient(90deg, #1E88E5, #283593); left: calc(50% - 4px); }
+.theme-option { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 15px; z-index: 2; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; border-radius: 50px; }
+.theme-option.active { color: white; }
+.theme-option:not(.active) { color: #666; }
+.theme-icon { font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+
+/* ===========================
+   Dark mode overrides
+   =========================== */
+body.dark { background: #121212; color: #F0F4F8; }
+body.dark header { background: linear-gradient(90deg,#1e1e1e,#333); }
+body.dark .item-card { background:#1e1e1e; color:#F0F4F8; }
+body.dark form { background:#1e1e1e; color:#F0F4F8; border:1px solid #333; }
+body.dark #filterCard { background: linear-gradient(135deg,#333,#555); color:#F0F4F8; }
+
+/* Make modals and share modal readable in dark mode */
+body.dark .modal-content,
+body.dark .share-modal-content,
+body.dark .image-modal-content {
+  background: #161616;
+  color: #F0F4F8;
+  border: 1px solid #333;
+}
+
+/* Dark mode: share option backgrounds & text color */
+body.dark .share-option { background: linear-gradient(180deg,#262626,#1b1b1b); border-color: rgba(255,255,255,0.03); }
+body.dark .share-option .share-text .share-title { color: #F0F4F8; }
+body.dark .share-option .share-text .share-subtitle { color: #cfcfcf; }
+
+/* ===========================
+   Sidebar & navigation
+   =========================== */
+.sidebar { 
+  height:100%; width:0; position:fixed; top:0; left:0; 
+  background: linear-gradient(135deg, #2575fc, #6a11cb); 
+  overflow-x:hidden; transition:0.4s; padding-top:70px; 
+  z-index:2000; border-top-right-radius:12px; border-bottom-right-radius:12px; 
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+.sidebar.open { width:250px; } 
+.sidebar a { padding:15px 25px; text-decoration:none; font-size:18px; color:#fff; display:block; transition:0.3s; border-radius:8px; margin:5px 10px; outline: none; position: relative; z-index: 2; }
+.sidebar a:hover { background: linear-gradient(90deg, #fc5c7d, #6a82fb); }
+.sidebar a.report-link { background:linear-gradient(90deg,#00A6FB,#0D3B66); font-weight:bold; font-size:19px; text-align:center; }
+
+/* ===========================
+   Report button - remove old pulse/glow pseudo animations
+   and apply the NEW, stronger neon-blue hover glow (#00CFFF)
+   =========================== */
+.sidebar a.report-link { overflow: visible; }
+
+/* keep pseudo elements present but neutralized so old pulse is disabled */
+.sidebar a.report-link::before,
+.sidebar a.report-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0%;
+  height: 0%;
+  transform: translate(-50%,-50%) scale(1);
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: -2;
+  background: transparent;
+  opacity: 0;
+  filter: blur(0px);
+  will-change: transform, opacity;
+}
+
+/* remove keyframe animations by not using them - old pulse cleared */
+
+/* slight uplift/border while hovered
+   only the new stronger blue glow is applied on hover/focus
+*/
+.sidebar a.report-link:hover,
+.sidebar a.report-link:focus {
+  transform: translateY(-2px);
+  border: 1px solid rgba(122,44,212,0.12);
+  /* NEW STRONG NEON BLUE GLOW for high contrast (user requested #00CFFF) */
+  box-shadow: 0 0 20px #00CFFF, 0 0 40px #00CFFF;
+  outline: none;
+}
+
+/* dark-mode tweaks for any small adjustments */
+body.dark .sidebar a.report-link:hover,
+body.dark .sidebar a.report-link:focus {
+  /* keep same neon blue but slightly toned so it's not blinding in dark mode */
+  box-shadow: 0 0 20px rgba(0,204,255,0.95), 0 0 40px rgba(0,204,255,0.7);
+}
+
+/* ===========================
+   Main layout / filter / items
+   =========================== */
+main { max-width:1000px; margin:25px auto; padding:0 20px; }
+h2 { font-weight:700; color:#0D3B66; margin-bottom:15px; }
+
+/* Filter/Search */
+#filterSection { margin-bottom:20px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); padding: 12px; border-radius:12px; }
+#searchInput { flex:1; padding:10px 15px; border-radius:12px; border:1px solid #ccc; font-size:1rem; }
+#filterCard { display:flex; align-items:center; gap:10px; background: linear-gradient(135deg, #6a11cb, #2575fc); padding:10px 15px; border-radius:12px; color:white; font-weight:600;}
+#filterSelect { padding:6px 10px; border-radius:6px; border:none; font-size:0.95rem; cursor:pointer; background-color:#f1f1f1; color:#0D3B66; font-weight:600;}
+
+/* Items grid */
+#itemsContainer { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
+.item-card { position:relative; background: linear-gradient(145deg, #ffffff, #d0e7f9); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition: all 0.4s ease; opacity:0; transform:translateY(20px); min-height:360px; }
+.item-card.loaded { opacity:1; transform:translateY(0);}
+.item-card img { width:100%; height:200px; object-fit:cover; opacity:0; transition: opacity 0.5s ease; cursor: pointer; display:block; background: linear-gradient(90deg,#f0f4f8,#e8f4f8); }
+.item-card img.loaded { opacity:1;}
+.item-info { padding:15px; flex-grow:1; overflow:auto; } 
+.item-info h3 { margin-bottom:5px; font-weight:600; }
+.item-info p { margin:2px 0; font-size:0.95rem; }
+.item-info .upload-time { font-size:0.85rem; font-style:italic; color:#555; margin-top:8px; display:block; }
+body.dark .item-info .upload-time { color: #cfcfcf; }
+.card-buttons { display:flex; flex-direction:column; gap:0; }
+
+/* Category badge */
+.category-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding:6px 10px;
+  border-radius: 999px;
+  font-weight:700;
+  font-size:0.75rem;
+  color: white;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  opacity: 0.95;
+  backdrop-filter: blur(4px);
+  text-transform: none;
+}
+
+/* Category colors */
+.badge-electronics { background: linear-gradient(90deg,#2b76f6,#1e90ff); }
+.badge-idcards { background: linear-gradient(90deg,#6a11cb,#8e44ad); }
+.badge-academicitems { background: linear-gradient(90deg,#00b894,#008f5f); }
+.badge-accessories { background: linear-gradient(90deg,#ff6b6b,#ff4757); }
+.badge-personaldocuments { background: linear-gradient(90deg,#f6b93b,#f39c12); }
+.badge-others { background: linear-gradient(90deg,#95a5a6,#7f8c8d); }
+.badge-default { background: linear-gradient(90deg,#34495e,#2c3e50); }
+
+/* Buttons in cards */
+.contact-btn, .share-btn { border:none; padding:12px; cursor:pointer; font-weight:600; transition: all 0.3s ease; }
+.contact-btn { background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; border-radius: 0; }
+.contact-btn:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.02); box-shadow: 0 6px 24px rgba(0,166,251,0.15); }
+.share-btn { background: linear-gradient(90deg, #25D366, #128C7E); color:white; border-radius: 0 0 12px 12px; }
+.share-btn:hover { background: linear-gradient(90deg, #128C7E, #075E54); transform: scale(1.02); }
+
+/* Form */
+form { display:flex; flex-direction:column; background: linear-gradient(135deg, #e0f7fa, #c0f0fa, #f0f4f8); padding:25px; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.1); margin-top:20px; transition: all 0.3s ease;}
+form input, form textarea, form select, form button { margin-bottom:12px; padding:12px; font-size:1rem; border-radius:12px; border:1px solid #ccc; outline:none; }
+form button { background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; font-weight:600; cursor:pointer; transition: all 0.3s ease; }
+form button:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.05); }
+
+/* Footer */
+footer { text-align:center; background: linear-gradient(135deg, #6a11cb, #2575fc); color:white; padding:15px; font-size:0.95rem; margin-top:40px; border-radius:12px 12px 0 0; }
+
+/* Modal base */
+.modal { display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
+.modal.show { display:block; animation: fadeIn 0.4s ease forwards; }
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+.modal-content { background:white; margin:10% auto; padding:25px; border-radius:12px; width:90%; max-width:400px; text-align:center; box-shadow:0 6px 15px rgba(0,0,0,0.25); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; }
+@keyframes slideFadeIn { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
+
+.modal button { margin-top:15px; background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.3s ease;}
+.modal button:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.05); }
+
+/* Share modal specifics */
+.share-modal-content { background:white; margin:8% auto; padding:30px; border-radius:20px; width:90%; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; position:relative; }
+.share-modal-content h3 { font-size:1.5rem; margin-bottom:20px; color:#0D3B66; }
+.share-close-btn { position:absolute; top:15px; right:20px; background:transparent; border:none; font-size:28px; color:#666; cursor:pointer; transition:all 0.3s ease; padding:5px 10px; }
+.share-close-btn:hover { color:#E91E63; transform:rotate(90deg); }
+
+/* Share options */
+.share-options { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+.share-option { display:flex; align-items:center; gap:15px; padding:15px 20px; background: linear-gradient(135deg, #f9f9f9, #e8f4f8); border-radius:12px; cursor:pointer; transition:all 0.3s ease; border:2px solid transparent; }
+.share-option:hover { transform:translateX(5px); box-shadow:0 8px 24px rgba(0,0,0,0.12); border-color:#2575fc; }
+.share-icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:22px; }
+.share-option.whatsapp .share-icon { background:#25D366; color:white; }
+.share-option.instagram .share-icon { background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color:white; }
+.share-option.twitter .share-icon { background:#1DA1F2; color:white; }
+.share-option.email .share-icon { background:#EA4335; color:white; }
+.share-option.copy .share-icon { background:linear-gradient(135deg, #667eea, #764ba2); color:white; }
+
+/* Share text */
+.share-text { flex:1; text-align:left; }
+.share-text .share-title { font-weight:600; font-size:1.05rem; color:#0D3B66; margin-bottom:2px; }
+.share-text .share-subtitle { font-size:0.85rem; color:#666; }
+body.dark .share-text .share-title { color:#F0F4F8; }
+body.dark .share-text .share-subtitle { color:#cfcfcf; }
+
+/* Copied notification */
+.copied-notification { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg, #00A6FB, #2575fc); color:white; padding:12px 25px; border-radius:50px; box-shadow:0 4px 15px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s ease; pointer-events:none; z-index:4000; font-weight:600; }
+.copied-notification.show { opacity:1; }
+
+/* ===========================
+   IMAGE VIEWER (fixed medium size)
+   - The container has fixed medium dimensions on desktop (800x600)
+   - On smaller screens it becomes responsive (max-width: 90%, max-height: 80vh)
+   - The image uses object-fit: contain so it fills that container without distortion
+   =========================== */
+
+/* modal backdrop */
+.image-modal { display:none; position:fixed; z-index:5000; left:0; top:0; width:100%; height:100%; background: rgba(0,0,0,0.75); align-items:center; justify-content:center; padding:30px; }
+
+/* show */
+.image-modal.show { display:flex; animation: fadeIn 0.35s ease forwards; }
+
+/* fixed medium viewer size on desktop:
+   - width: 800px; height: 600px (user requested "medium size")
+   - max-width/max-height ensure responsiveness on smaller screens
+*/
+.image-modal-content {
+  background: white;
+  padding: 14px;
+  border-radius: 12px;
+  width: 800px;           /* fixed medium width on desktop */
+  height: 600px;          /* fixed medium height on desktop */
+  max-width: 90%;
+  max-height: 80vh;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+}
+
+/* image element fills the view area while keeping aspect ratio
+   since container is fixed, images of any upload size will display at the same viewer size
+*/
+.image-modal-content img {
+  width: 100%;
+  height: calc(100% - 56px); /* leave space for the Close button (approx) */
+  object-fit: contain;       /* maintain aspect ratio, show whole image */
+  border-radius: 8px;
+  display:block;
+}
+
+/* Close button (not X) - adjusted color to be visible in light & dark */
+.image-modal-content .image-close-btn {
+  background: linear-gradient(90deg, #00CFFF, #007BBF);
+  color: #fff;
+  padding:10px 14px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+  align-self:center;
+  box-shadow: 0 6px 20px rgba(0,204,255,0.18);
+}
+.image-modal-content .image-close-btn:hover { transform: scale(1.03); }
+
+/* dark-mode viewer background */
+body.dark .image-modal-content { background: #111; }
+
+/* responsive smaller screens */
+@media (max-width:900px){
+  .image-modal-content { width: 720px; height: 540px; }
+}
+@media (max-width:720px){
+  .image-modal-content { width: 90%; height: 70vh; }
+  .image-modal-content img { height: calc(100% - 56px); }
+}
+
+/* Hidden sections helper */
+#upload-section.hidden, #items-section.hidden, #filterSection.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<!-- Persistent sidebar toggle -->
+<button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle menu">☰</button>
+
+<!-- Header -->
+<header>
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <h1>Lost & Found Campus Portal</h1>
+
+  <!-- Theme toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()" role="button" aria-pressed="false" aria-label="Toggle theme">
+    <div class="theme-slider day" id="themeSlider"></div>
+    <div class="theme-option day active" id="dayMode">
+      <span class="theme-icon">☀</span>
+      <span>LIGHT MODE</span>
+    </div>
+    <div class="theme-option night" id="nightMode">
+      <span class="theme-icon">🌙</span>
+      <span>DARK MODE</span>
+    </div>
+  </div>
+</header>
+
+<!-- Sidebar -->
+<div id="sidebarMenu" class="sidebar" aria-hidden="true">
+  <a href="#" class="report-link" onclick="event.preventDefault(); showSection('Report')">📝 Report Item</a>
+  <hr style="border: 1px solid #004ea1; margin: 10px 0;">
+  <a href="#" onclick="event.preventDefault(); showSection('All')">📦 All Items</a>
+  <a href="#" onclick="event.preventDefault(); showSection('ID Cards')">💳 ID Cards</a>
+  <a href="#" onclick="event.preventDefault(); showSection('Electronics')">💻 Electronics</a>
+  <a href="#" onclick="event.preventDefault(); showSection('Academic Items')">📚 Academic Items</a>
+  <a href="#" onclick="event.preventDefault(); showSection('Accessories')">🎒 Accessories</a>
+  <a href="#" onclick="event.preventDefault(); showSection('Personal Documents')">🗂 Personal Documents</a>
+  <a href="#" onclick="event.preventDefault(); showSection('Others')">🛍 Others</a>
+</div>
+
+<main>
+  <!-- Filter / Search -->
+  <div id="filterSection">
+    <input type="text" id="searchInput" placeholder="🔍 Search items...">
+    <div id="filterCard">
+      <label for="filterSelect">Sort Items:</label>
+      <select id="filterSelect">
+        <option value="newest">🕒 Newest</option>
+        <option value="oldest">🕒 Oldest</option>
+        <option value="az">🔤 A → Z</option>
+        <option value="za">🔤 Z → A</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Items -->
+  <section id="items-section">
+    <h2 id="sectionTitle">Recently Found Items</h2>
+    <div id="itemsContainer"></div>
+  </section>
+
+  <!-- Upload (Report) section -->
+  <section id="upload-section" class="hidden">
+    <h2>Report a Found Item</h2>
+    <form id="uploadForm">
+      <label>Item Name:</label>
+      <input type="text" id="itemName" placeholder="Blue Backpack" required />
+      <label>Description:</label>
+      <textarea id="itemDescription" placeholder="Describe the item..." required></textarea>
+      <label>Category:</label>
+      <select id="itemCategory" required>
+        <option value="">-- Select Category --</option>
+        <option value="ID Cards">ID Cards</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Academic Items">Academic Items</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Personal Documents">Personal Documents</option>
+        <option value="Others">Others</option>
+      </select>
+      <label>Pickup Location:</label>
+      <input type="text" id="itemLocation" placeholder="Library Front Desk" required />
+      <label>Contact Info:</label>
+      <input type="text" id="contactInfo" placeholder="your.email@university.edu" required />
+      <label>Upload Photo:</label>
+      <input type="file" id="itemPhoto" accept="image/*" required />
+      <button type="submit">Submit Item</button>
+    </form>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer>
+  <p>©2025 Lost & Found Campus Portal | Made for Students by Students!</p>
+</footer>
+
+<!-- Contact modal -->
+<div id="contactModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-content" role="document" aria-labelledby="contactTitle">
+    <h3 id="contactTitle">Contact Finder</h3>
+    <p id="contactDetails"></p>
+    <p><em>Please bring valid proof before collecting your item.</em></p>
+    <button onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- Share modal (only top-right "X") -->
+<div id="shareModal" class="modal" role="dialog" aria-modal="true">
+  <div class="share-modal-content" role="document" aria-labelledby="shareTitle">
+    <button class="share-close-btn" onclick="closeShareModal()" aria-label="Close share dialog">×</button>
+    <h3 id="shareTitle">Share Item</h3>
+    <div class="share-options">
+      <div class="share-option whatsapp" onclick="shareVia('whatsapp')">
+        <div class="share-icon">📱</div>
+        <div class="share-text">
+          <div class="share-title">WhatsApp</div>
+          <div class="share-subtitle">Share via WhatsApp</div>
+        </div>
+      </div>
+      <div class="share-option instagram" onclick="shareVia('instagram')">
+        <div class="share-icon">📷</div>
+        <div class="share-text">
+          <div class="share-title">Instagram</div>
+          <div class="share-subtitle">Share on Instagram</div>
+        </div>
+      </div>
+      <div class="share-option twitter" onclick="shareVia('twitter')">
+        <div class="share-icon">🐦</div>
+        <div class="share-text">
+          <div class="share-title">X (Twitter)</div>
+          <div class="share-subtitle">Share on X</div>
+        </div>
+      </div>
+      <div class="share-option email" onclick="shareVia('email')">
+        <div class="share-icon">✉</div>
+        <div class="share-text">
+          <div class="share-title">Email</div>
+          <div class="share-subtitle">Share via Email</div>
+        </div>
+      </div>
+      <div class="share-option copy" onclick="shareVia('copy')">
+        <div class="share-icon">🔗</div>
+        <div class="share-text">
+          <div class="share-title">Copy Link</div>
+          <div class="share-subtitle">Copy to clipboard</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image viewer (fixed medium size) -->
+<div id="imageModal" class="image-modal" role="dialog" aria-modal="true">
+  <div class="image-modal-content" role="document" aria-labelledby="imageTitle">
+    <img id="imageModalImg" alt="Full-size item" src="" />
+    <button class="image-close-btn" id="imageCloseBtn">Close</button>
+  </div>
+</div>
+
+<!-- Copied notification -->
+<div id="copiedNotification" class="copied-notification">✓ Link copied to clipboard!</div>
+
+<script>
+/* ================
+   JavaScript with inline comments
+   - Fixed image display
+   - Image viewer opens medium fixed-size viewer (800x600 desktop)
+   - Close button provided (not X)
+   - Dark-mode support included
+   - Existing features preserved
+   ================ */
+
+/* DOM refs */
+const itemsContainer = document.getElementById('itemsContainer');
+const modal = document.getElementById('contactModal');
+const contactDetails = document.getElementById('contactDetails');
+const uploadSection = document.getElementById('upload-section');
+const itemsSection = document.getElementById('items-section');
+const sectionTitle = document.getElementById('sectionTitle');
+const uploadForm = document.getElementById('uploadForm');
+const filterSection = document.getElementById('filterSection');
+const filterSelect = document.getElementById('filterSelect');
+const searchInput = document.getElementById('searchInput');
+const sidebarMenu = document.getElementById('sidebarMenu');
+const themeSlider = document.getElementById('themeSlider');
+const shareModal = document.getElementById('shareModal');
+const copiedNotification = document.getElementById('copiedNotification');
+const sidebarToggle = document.getElementById('sidebarToggle');
+
+const imageModal = document.getElementById('imageModal');
+const imageModalImg = document.getElementById('imageModalImg');
+const imageCloseBtn = document.getElementById('imageCloseBtn');
+
+let currentCategory = "All";
+let currentShareItem = null;
+
+/* Sidebar toggles */
+function openMenu(){ sidebarMenu.classList.add('open'); sidebarMenu.setAttribute('aria-hidden','false'); }
+function closeMenu(){ sidebarMenu.classList.remove('open'); sidebarMenu.setAttribute('aria-hidden','true'); }
+function toggleMenu(){ if(sidebarMenu.classList.contains('open')) closeMenu(); else openMenu(); }
+sidebarToggle.addEventListener('click', toggleMenu);
+
+/* Contact modal display */
+function contactUploader(contactInfo){
+  const safeContact = contactInfo ? escapeHtml(String(contactInfo)) : 'No contact provided';
+  contactDetails.innerHTML = `You can reach the finder at:<br><strong>${safeContact}</strong>`;
+  modal.classList.add('show');
+}
+function closeModal(){ modal.classList.remove('show'); }
+
+/* Share modal */
+function openShareModal(item){
+  currentShareItem = item;
+  shareModal.classList.add('show');
+}
+function closeShareModal(){ shareModal.classList.remove('show'); currentShareItem = null; }
+
+/* Share actions */
+function shareVia(platform){
+  if(!currentShareItem) return;
+  const itemText = `Found Item: ${currentShareItem.name}\n${currentShareItem.description}\nLocation: ${currentShareItem.location}\nContact: ${currentShareItem.contact}`;
+  const itemUrl = window.location.href;
+  switch(platform){
+    case 'whatsapp':
+      window.open(`https://wa.me/?text=${encodeURIComponent(itemText + '\n' + itemUrl)}`, '_blank');
+      break;
+    case 'instagram':
+      alert('Instagram sharing works best through the mobile app. Please use the copy link option and paste in Instagram DM or Story!');
+      break;
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(itemText)}&url=${encodeURIComponent(itemUrl)}`, '_blank');
+      break;
+    case 'email':
+      window.location.href = `mailto:?subject=${encodeURIComponent('Found Item: ' + currentShareItem.name)}&body=${encodeURIComponent(itemText + '\n\n' + itemUrl)}`;
+      break;
+    case 'copy':
+      const textToCopy = itemText + '\n\n' + itemUrl;
+      navigator.clipboard.writeText(textToCopy).then(()=>{
+        copiedNotification.classList.add('show');
+        setTimeout(()=>{copiedNotification.classList.remove('show');},2500);
+      }).catch(()=>{
+        alert('Failed to copy. Please copy manually:\n\n'+textToCopy);
+      });
+      break;
+  }
+  if(platform !== 'instagram') closeShareModal();
+}
+
+/* Close modals when clicking backdrop */
+window.onclick = e => {
+  if(e.target === modal) closeModal();
+  if(e.target === shareModal) closeShareModal();
+  if(e.target === imageModal) closeImageModal();
+};
+
+/* Theme toggle logic */
+function toggleTheme(){ const isDark = document.body.classList.contains('dark'); setTheme(isDark ? 'light' : 'dark'); }
+function setTheme(theme){
+  const dayMode = document.getElementById('dayMode');
+  const nightMode = document.getElementById('nightMode');
+  if(theme === 'dark'){
+    document.body.classList.add('dark');
+    dayMode.classList.remove('active');
+    nightMode.classList.add('active');
+    themeSlider.classList.remove('day');
+    themeSlider.classList.add('night');
+    localStorage.setItem('theme','dark');
+    document.querySelector('.theme-toggle').setAttribute('aria-pressed','true');
+  } else {
+    document.body.classList.remove('dark');
+    nightMode.classList.remove('active');
+    dayMode.classList.add('active');
+    themeSlider.classList.remove('night');
+    themeSlider.classList.add('day');
+    localStorage.setItem('theme','light');
+    document.querySelector('.theme-toggle').setAttribute('aria-pressed','false');
+  }
+}
+const savedTheme = localStorage.getItem('theme') || 'light';
+setTheme(savedTheme);
+
+/* Section switching */
+function showSection(category){
+  closeMenu();
+  if(category === "Report"){
+    uploadSection.classList.remove("hidden");
+    itemsSection.classList.add("hidden");
+    filterSection.classList.add("hidden");
+    currentCategory = "Report";
+  } else {
+    uploadSection.classList.add("hidden");
+    itemsSection.classList.remove("hidden");
+    filterSection.classList.remove("hidden");
+    currentCategory = category || "All";
+    sectionTitle.textContent = (currentCategory === "All") ? "Recently Found Items" : currentCategory + " Items";
+    loadItems();
+  }
+}
+
+/* Helpers */
+function escapeHtml(unsafe) {
+  return String(unsafe).replace(/[&<"'>]/g, function(m) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+  });
+}
+function normalizeCategory(str){ if(!str) return ''; return String(str).trim().toLowerCase(); }
+function getBadgeClass(category){
+  const n = normalizeCategory(category);
+  if(n.includes('electro')) return 'badge-electronics';
+  if(n.includes('id') || n.includes('card')) return 'badge-idcards';
+  if(n.includes('academic')) return 'badge-academicitems';
+  if(n.includes('accessor')) return 'badge-accessories';
+  if(n.includes('personal') || n.includes('document')) return 'badge-personaldocuments';
+  if(n.includes('other')) return 'badge-others';
+  return 'badge-default';
+}
+
+/* Date with seconds */
+function formatDate(ts){
+  const d = new Date(ts || Date.now());
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  let hours = d.getHours();
+  const minutes = String(d.getMinutes()).padStart(2,'0');
+  const seconds = String(d.getSeconds()).padStart(2,'0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  return `${dd}/${mm}/${yyyy} ${hours}:${minutes}:${seconds} ${ampm}`;
+}
+
+/* Placeholder inline SVG data URI to avoid broken image icons */
+const PLACEHOLDER_SVG = encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'>
+    <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#e6eefb'/><stop offset='1' stop-color='#dfeeff'/></linearGradient></defs>
+    <rect width='100%' height='100%' fill='url(#g)'/>
+    <g fill='#9fb0d6' font-family='Roboto, sans-serif' font-size='28' text-anchor='middle'>
+      <text x='50%' y='48%' fill='#9fb0d6'>No Image</text>
+      <text x='50%' y='62%' fill='#b6c9e9' font-size='18'>Image not available</text>
+    </g>
+  </svg>`
+);
+const PLACEHOLDER_SRC = `data:image/svg+xml;charset=utf-8,${PLACEHOLDER_SVG}`;
+
+/* Create item card (safe DOM creation) */
+function createItemCard(item){
+  const card = document.createElement('div');
+  card.className = 'item-card loaded';
+
+  // category badge
+  const badge = document.createElement('div');
+  badge.className = 'category-badge ' + getBadgeClass(item.category);
+  badge.textContent = item.category || 'Others';
+  card.appendChild(badge);
+
+  // image element with onerror fallback and click-to-open
+  const img = document.createElement('img');
+  img.alt = item.name || 'Item photo';
+  img.src = item.photo || PLACEHOLDER_SRC; // fallback if no photo
+  img.setAttribute('translate','no'); // help prevent translate popup
+  img.classList.add('notranslate');
+  img.draggable = false;
+  img.onerror = function(){
+    if(this.src !== PLACEHOLDER_SRC) this.src = PLACEHOLDER_SRC;
+  };
+  img.onload = function(){ this.classList.add('loaded'); };
+
+  // clicking image opens fixed-size viewer
+  img.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    openImageModal(item.photo || PLACEHOLDER_SRC, item.name || 'Item photo');
+  });
+
+  // info block
+  const info = document.createElement('div');
+  info.className = 'item-info';
+  const title = document.createElement('h3');
+  title.textContent = item.name || '';
+  const desc = document.createElement('p');
+  desc.textContent = item.description || '';
+  const loc = document.createElement('p');
+  loc.textContent = `Pickup Location: ${item.location || ''}`;
+  const timeP = document.createElement('p');
+  timeP.className = 'upload-time';
+  timeP.textContent = `Uploaded On: ${formatDate(item.timestamp || Date.now())}`;
+
+  info.appendChild(title);
+  info.appendChild(desc);
+  info.appendChild(loc);
+  info.appendChild(timeP);
+
+  // buttons
+  const btnWrap = document.createElement('div');
+  btnWrap.className = 'card-buttons';
+
+  const contactBtn = document.createElement('button');
+  contactBtn.className = 'contact-btn';
+  contactBtn.textContent = 'Contact Finder';
+  contactBtn.addEventListener('click', ()=> contactUploader(item.contact));
+
+  const shareBtn = document.createElement('button');
+  shareBtn.className = 'share-btn';
+  shareBtn.textContent = '📤 Share Item';
+  shareBtn.addEventListener('click', ()=> openShareModal(item));
+
+  btnWrap.appendChild(contactBtn);
+  btnWrap.appendChild(shareBtn);
+
+  card.appendChild(img);
+  card.appendChild(info);
+  card.appendChild(btnWrap);
+
+  return card;
+}
+
+/* Load items */
+function loadItems(){
+  const items = JSON.parse(localStorage.getItem('foundItems')) || [];
+  const searchTerm = (searchInput.value || '').toLowerCase().trim();
+  itemsContainer.innerHTML = '';
+
+  const selectedCategoryNormalized = normalizeCategory(currentCategory);
+  const filtered = items.filter(i => {
+    const itemCat = normalizeCategory(i.category);
+    const matchCategory = (selectedCategoryNormalized === 'all' || selectedCategoryNormalized === '' || selectedCategoryNormalized === 'report') ? true : (itemCat === selectedCategoryNormalized);
+    const name = (i.name || '').toLowerCase();
+    const desc = (i.description || '').toLowerCase();
+    const matchSearch = (searchTerm === '') || name.includes(searchTerm) || desc.includes(searchTerm);
+    return matchCategory && matchSearch;
+  });
+
+  const sortValue = filterSelect.value;
+  filtered.sort((a,b)=>{
+    if(sortValue === "newest") return (b.timestamp || 0) - (a.timestamp || 0);
+    if(sortValue === "oldest") return (a.timestamp || 0) - (b.timestamp || 0);
+    if(sortValue === "az") return (a.name || '').localeCompare(b.name || '');
+    if(sortValue === "za") return (b.name || '').localeCompare(a.name || '');
+    return 0;
+  });
+
+  if(filtered.length === 0){
+    itemsContainer.innerHTML = "<p style='text-align:center; font-style:italic; margin-top:20px;'>No items found in this category. Be the first to report one!</p>";
+    return;
+  }
+
+  filtered.forEach(item => {
+    item.category = item.category || 'Others';
+    const card = createItemCard(item);
+    itemsContainer.appendChild(card);
+  });
+}
+
+/* ===== IMAGE modal open/close ===== */
+/* Opens viewer with fixed medium container; image will contain to that size */
+function openImageModal(src, alt){
+  imageModalImg.src = src || PLACEHOLDER_SRC;
+  imageModalImg.alt = alt || 'Item image';
+  imageModal.classList.add('show');
+}
+
+/* Close viewer (Close button or backdrop or ESC) */
+function closeImageModal(){
+  imageModal.classList.remove('show');
+  setTimeout(()=>{ imageModalImg.src = ''; }, 300);
+}
+imageCloseBtn.addEventListener('click', closeImageModal);
+
+/* ESC key closes viewer and other modals */
+window.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if(imageModal.classList.contains('show')) closeImageModal();
+    if(shareModal.classList.contains('show')) closeShareModal();
+    if(modal.classList.contains('show')) closeModal();
+  }
+});
+
+/* ===== Image file resize helper (reduces size to avoid localStorage QUOTA errors) ===== */
+function resizeImageFileToDataURL(file, maxWidth = 1200, maxHeight = 1200, outputType = 'image/jpeg', quality = 0.8){
+  return new Promise((resolve, reject) => {
+    if(!file) return reject(new Error('No file provided'));
+    const reader = new FileReader();
+    reader.onerror = (err) => reject(err);
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = (err) => reject(err);
+      img.onload = () => {
+        let { width, height } = img;
+        // calculate scaling
+        const ratio = Math.min(1, maxWidth / width, maxHeight / height);
+        const targetWidth = Math.round(width * ratio);
+        const targetHeight = Math.round(height * ratio);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        // draw with white background for JPEG
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+        try {
+          const dataUrl = canvas.toDataURL(outputType, quality);
+          resolve(dataUrl);
+        } catch(err){
+          reject(err);
+        }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===== Form submit handling (robust: resize image -> store base64 -> reload items) ===== */
+uploadForm.addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  // find submit button and disable it while processing
+  const submitBtn = uploadForm.querySelector('button[type="submit"]') || uploadForm.querySelector('button');
+  if(submitBtn) submitBtn.disabled = true;
+
+  try {
+    const nameEl = document.getElementById('itemName');
+    const descEl = document.getElementById('itemDescription');
+    const categoryEl = document.getElementById('itemCategory');
+    const locationEl = document.getElementById('itemLocation');
+    const contactEl = document.getElementById('contactInfo');
+    const photoInput = document.getElementById('itemPhoto');
+
+    const name = nameEl?.value?.trim();
+    const description = descEl?.value?.trim();
+    const category = categoryEl?.value?.trim() || 'Others';
+    const location = locationEl?.value?.trim();
+    const contact = contactEl?.value?.trim();
+
+    // validation
+    if(!name || !description || !category || !location || !contact){
+      alert('Please fill all required fields.');
+      return;
+    }
+    if(!photoInput || !photoInput.files || photoInput.files.length === 0){
+      alert('Please upload a photo.');
+      return;
+    }
+
+    const file = photoInput.files[0];
+
+    // Resize image and get a compressed base64 dataURL to reduce size
+    let dataUrl;
+    try {
+      // resize to max 1200px and compress to JPEG quality 0.8
+      dataUrl = await resizeImageFileToDataURL(file, 1200, 1200, 'image/jpeg', 0.8);
+    } catch (resizeErr) {
+      console.warn('Image resize failed, will try direct FileReader fallback:', resizeErr);
+      // fallback: read original file as dataURL (might be large)
+      dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onerror = () => rej(new Error('Failed to read file'));
+        r.onload = () => res(r.result);
+        r.readAsDataURL(file);
+      });
+    }
+
+    // Build item object
+    const newItem = {
+      name,
+      description,
+      category,
+      location,
+      contact,
+      photo: dataUrl,
+      timestamp: Date.now()
+    };
+
+    // Save to localStorage
+    const existing = JSON.parse(localStorage.getItem('foundItems')) || [];
+    existing.push(newItem);
+
+    try {
+      localStorage.setItem('foundItems', JSON.stringify(existing));
+    } catch(storageErr) {
+      // handle quota errors explicitly and provide clear guidance
+      console.error('localStorage setItem error:', storageErr);
+      if (storageErr && (storageErr.name === 'QuotaExceededError' || storageErr.name === 'NS_ERROR_DOM_QUOTA_REACHED' || storageErr.code === 22)) {
+        alert('Saving the image exceeded localStorage space. Try a smaller image (reduce resolution or file size) or clear some saved items.');
+      } else {
+        alert('An unexpected error occurred while saving the item. Check console for details.');
+      }
+      return;
+    }
+
+    // success path: reset form, show All, reload items
+    uploadForm.reset();
+    alert('Item reported successfully!');
+    showSection('All');
+    // small delay to allow section swap DOM changes
+    setTimeout(() => loadItems(), 80);
+
+  } catch(err) {
+    console.error('Submit handler unexpected error:', err);
+    alert('An unexpected error occurred while saving the item. See console for details.');
+  } finally {
+    if(submitBtn) submitBtn.disabled = false;
+  }
+});
+
+/* Filter & Search */
+filterSelect.addEventListener('change', loadItems);
+searchInput.addEventListener('input', loadItems);
+
+/* Initial load */
+document.addEventListener('DOMContentLoaded', function(){
+  showSection('All');
+  loadItems();
+});
+</script>
+</body>
+</html>
