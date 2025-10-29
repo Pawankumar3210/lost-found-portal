@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -26,12 +28,38 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Serve index.html for the root route
+// Define Mongoose Schema
+const itemSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  location: String,
+  date: String,
+  type: String, // "lost" or "found"
+  contact: String,
+});
+
+const Item = mongoose.model("Item", itemSchema);
+
+// Routes
+app.get("/api/items", async (req, res) => {
+  const items = await Item.find();
+  res.json(items);
+});
+
+app.post("/api/items", async (req, res) => {
+  try {
+    const newItem = new Item(req.body);
+    await newItem.save();
+    res.status(201).json({ message: "Item added successfully" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Serve frontend
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// Start Server
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
