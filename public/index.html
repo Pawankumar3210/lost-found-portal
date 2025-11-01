@@ -13,9 +13,29 @@
    =========================== */
 * { box-sizing: border-box; margin:0; padding:0; font-family: 'Roboto', sans-serif; transition: all 0.3s ease; }
 body { 
-  background: linear-gradient(135deg, #d0e7f9, #e0f7fa, #f0f4f8);
+  background: linear-gradient(135deg, #b3e5fc 0%, #c5e1a5 25%, #b2dfdb 50%, #ce93d8 75%, #90caf9 100%);
+  background-attachment: fixed;
+  background-size: cover;
   color: #0D3B66;
   min-height: 100vh;
+  position: relative;
+}
+
+/* Add smooth blended overlay for extra depth */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(144, 202, 249, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(206, 147, 216, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 40% 20%, rgba(197, 225, 165, 0.4) 0%, transparent 60%),
+    radial-gradient(circle at 60% 70%, rgba(178, 223, 219, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 h1,h2,h3 { font-family: 'Poppins', sans-serif; }
 
@@ -26,7 +46,6 @@ header {
   background: linear-gradient(135deg, #6a11cb, #2575fc);
   color: white;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   position: sticky;
@@ -36,8 +55,17 @@ header {
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
 }
-header h1 { font-weight:700; font-size:1.5rem; }
+header h1 { 
+  font-weight:700; 
+  font-size:1.5rem; 
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+.header-left { flex: 1; display: flex; align-items: center; }
 .menu-btn { font-size:28px; cursor:pointer; background:none; border:none; color:white; }
+.header-right { flex: 1; display:flex; align-items:center; justify-content:flex-end; gap:15px; }
 
 /* ===========================
    Persistent sidebar toggle
@@ -99,16 +127,58 @@ body.dark { background: #121212; color: #F0F4F8; }
 body.dark header { background: linear-gradient(90deg,#1e1e1e,#333); }
 body.dark .item-card { background:#1e1e1e; color:#F0F4F8; }
 body.dark form { background:#1e1e1e; color:#F0F4F8; border:1px solid #333; }
+body.dark form label { color:#F0F4F8; }
+body.dark form input, 
+body.dark form textarea, 
+body.dark form select { 
+  background: rgba(40,40,40,0.9); 
+  color:#F0F4F8; 
+  border-color: rgba(100,100,100,0.5); 
+}
+body.dark form input:focus, 
+body.dark form textarea:focus, 
+body.dark form select:focus { 
+  background: rgba(50,50,50,0.95); 
+  border-color:#00A6FB; 
+}
+body.dark form select { 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F0F4F8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
 body.dark #filterCard { background: linear-gradient(135deg,#333,#555); color:#F0F4F8; }
+body.dark #filterSection { background: linear-gradient(135deg, rgba(50,50,50,0.9), rgba(70,70,70,0.9)); border-color: rgba(255,255,255,0.1); }
+body.dark #searchInput { background: rgba(40,40,40,0.9); border-color: rgba(100,100,100,0.5); color: #F0F4F8; }
+body.dark #searchInput:focus { background: rgba(50,50,50,0.95); border-color: #00A6FB; }
+body.dark #filterSelect { background-color: rgba(50,50,50,0.95); color:#F0F4F8; }
+body.dark #filterSelect:hover { background-color: rgba(60,60,60,0.95); }
+body.dark h2 { color:#F0F4F8; }
+body.dark h2::after { background: linear-gradient(90deg, #00A6FB, #2575fc); }
 
 /* Make modals and share modal readable in dark mode */
 body.dark .modal-content,
 body.dark .share-modal-content,
-body.dark .image-modal-content {
+body.dark .image-modal-content,
+body.dark .login-modal-content,
+body.dark .single-item-modal-content {
   background: #161616;
   color: #F0F4F8;
   border: 1px solid #333;
 }
+body.dark .modal-content p,
+body.dark .modal-content strong {
+  color: #F0F4F8;
+}
+body.dark .modal-content a {
+  color: #4da6ff;
+}
+body.dark .modal-content a:hover {
+  color: #66b3ff;
+}
+body.dark .login-form label { color:#F0F4F8; }
+body.dark .login-form input { background:#2a2a2a; color:#F0F4F8; border-color:#444; }
+body.dark .login-form input:focus { background:#333; border-color:#00A6FB; }
+body.dark .single-item-content h3 { color:#F0F4F8; }
+body.dark .single-item-content p { color:#e0e0e0; }
+body.dark .item-info h3 { color:#F0F4F8; }
 
 /* Dark mode: share option backgrounds & text color */
 body.dark .share-option { background: linear-gradient(180deg,#262626,#1b1b1b); border-color: rgba(255,255,255,0.03); }
@@ -126,19 +196,42 @@ body.dark .share-option .share-text .share-subtitle { color: #cfcfcf; }
   box-shadow: 2px 0 10px rgba(0,0,0,0.2);
 }
 .sidebar.open { width:250px; } 
-.sidebar a { padding:15px 25px; text-decoration:none; font-size:18px; color:#fff; display:block; transition:0.3s; border-radius:8px; margin:5px 10px; outline: none; position: relative; z-index: 2; }
-.sidebar a:hover { background: linear-gradient(90deg, #fc5c7d, #6a82fb); }
-.sidebar a.report-link { background:linear-gradient(90deg,#00A6FB,#0D3B66); font-weight:bold; font-size:19px; text-align:center; }
+.sidebar a { 
+  padding:15px 25px; 
+  text-decoration:none; 
+  font-size:18px; 
+  color:#fff; 
+  display:block; 
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  border-radius:10px; 
+  margin:6px 10px; 
+  outline: none; 
+  position: relative; 
+  z-index: 2;
+  border-left: 3px solid transparent;
+}
+.sidebar a:hover { 
+  background: linear-gradient(90deg, rgba(252,92,125,0.9), rgba(106,130,251,0.9)); 
+  transform: translateX(5px);
+  border-left-color: rgba(255,255,255,0.8);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.sidebar a:active {
+  transform: translateX(2px);
+}
+.sidebar a.report-link, .sidebar a.moderator-link { background:linear-gradient(90deg,#00A6FB,#0D3B66); font-weight:bold; font-size:19px; text-align:center; }
 
 /* ===========================
    Report button - remove old pulse/glow pseudo animations
    and apply the NEW, stronger neon-blue hover glow (#00CFFF)
    =========================== */
-.sidebar a.report-link { overflow: visible; }
+.sidebar a.report-link, .sidebar a.moderator-link { overflow: visible; }
 
 /* keep pseudo elements present but neutralized so old pulse is disabled */
 .sidebar a.report-link::before,
-.sidebar a.report-link::after {
+.sidebar a.report-link::after,
+.sidebar a.moderator-link::before,
+.sidebar a.moderator-link::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -161,7 +254,9 @@ body.dark .share-option .share-text .share-subtitle { color: #cfcfcf; }
    only the new stronger blue glow is applied on hover/focus
 */
 .sidebar a.report-link:hover,
-.sidebar a.report-link:focus {
+.sidebar a.report-link:focus,
+.sidebar a.moderator-link:hover,
+.sidebar a.moderator-link:focus {
   transform: translateY(-2px);
   border: 1px solid rgba(122,44,212,0.12);
   /* NEW STRONG NEON BLUE GLOW for high contrast (user requested #00CFFF) */
@@ -171,7 +266,9 @@ body.dark .share-option .share-text .share-subtitle { color: #cfcfcf; }
 
 /* dark-mode tweaks for any small adjustments */
 body.dark .sidebar a.report-link:hover,
-body.dark .sidebar a.report-link:focus {
+body.dark .sidebar a.report-link:focus,
+body.dark .sidebar a.moderator-link:hover,
+body.dark .sidebar a.moderator-link:focus {
   /* keep same neon blue but slightly toned so it's not blinding in dark mode */
   box-shadow: 0 0 20px rgba(0,204,255,0.95), 0 0 40px rgba(0,204,255,0.7);
 }
@@ -180,24 +277,154 @@ body.dark .sidebar a.report-link:focus {
    Main layout / filter / items
    =========================== */
 main { max-width:1000px; margin:25px auto; padding:0 20px; }
-h2 { font-weight:700; color:#0D3B66; margin-bottom:15px; }
+h2 { 
+  font-weight:700; 
+  color:#0D3B66; 
+  margin-bottom:20px; 
+  font-size:1.75rem;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #00A6FB, #2575fc);
+  border-radius: 2px;
+}
 
 /* Filter/Search */
-#filterSection { margin-bottom:20px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; background: linear-gradient(135deg, #e0f7fa, #b2ebf2); padding: 12px; border-radius:12px; }
-#searchInput { flex:1; padding:10px 15px; border-radius:12px; border:1px solid #ccc; font-size:1rem; }
-#filterCard { display:flex; align-items:center; gap:10px; background: linear-gradient(135deg, #6a11cb, #2575fc); padding:10px 15px; border-radius:12px; color:white; font-weight:600;}
-#filterSelect { padding:6px 10px; border-radius:6px; border:none; font-size:0.95rem; cursor:pointer; background-color:#f1f1f1; color:#0D3B66; font-weight:600;}
+#filterSection { 
+  margin-bottom:20px; 
+  display:flex; 
+  justify-content:flex-end; 
+  gap:10px; 
+  flex-wrap:wrap; 
+  background: linear-gradient(135deg, rgba(224,247,250,0.9), rgba(178,235,242,0.9)); 
+  padding: 15px 20px; 
+  border-radius:16px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+#searchInput { 
+  flex:1; 
+  padding:12px 18px; 
+  border-radius:12px; 
+  border:2px solid rgba(200,200,200,0.5); 
+  font-size:1rem; 
+  background: rgba(255,255,255,0.9);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+#searchInput:focus {
+  outline: none;
+  border-color: #00A6FB;
+  box-shadow: 0 0 0 3px rgba(0,166,251,0.15), 0 4px 12px rgba(0,0,0,0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+#filterCard { 
+  display:flex; 
+  align-items:center; 
+  gap:10px; 
+  background: linear-gradient(135deg, #6a11cb, #2575fc); 
+  padding:12px 18px; 
+  border-radius:12px; 
+  color:white; 
+  font-weight:600;
+  box-shadow: 0 4px 15px rgba(106,17,203,0.3);
+  transition: all 0.3s ease;
+}
+#filterCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(106,17,203,0.4);
+}
+#filterSelect { 
+  padding:8px 12px; 
+  border-radius:8px; 
+  border:none; 
+  font-size:0.95rem; 
+  cursor:pointer; 
+  background-color:rgba(255,255,255,0.95); 
+  color:#0D3B66; 
+  font-weight:600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+#filterSelect:hover {
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+#filterSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.15);
+}
 
-/* Items grid */
-#itemsContainer { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
-.item-card { position:relative; background: linear-gradient(145deg, #ffffff, #d0e7f9); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition: all 0.4s ease; opacity:0; transform:translateY(20px); min-height:360px; }
+/* Items grid - fixed square cards */
+#itemsContainer { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+.item-card { 
+  position:relative; 
+  background: linear-gradient(145deg, #ffffff, #d0e7f9); 
+  border-radius:16px; 
+  overflow:hidden; 
+  display:flex; 
+  flex-direction:column; 
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+  opacity:0; 
+  transform:translateY(20px); 
+  min-height:360px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  border-color: rgba(0,166,251,0.3);
+}
 .item-card.loaded { opacity:1; transform:translateY(0);}
-.item-card img { width:100%; height:200px; object-fit:cover; opacity:0; transition: opacity 0.5s ease; cursor: pointer; display:block; background: linear-gradient(90deg,#f0f4f8,#e8f4f8); }
+.item-card.loaded:hover { transform: translateY(-8px); }
+.item-card img { 
+  width:100%; 
+  height:200px; 
+  object-fit:cover; 
+  opacity:0; 
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+  cursor: pointer; 
+  display:block; 
+  background: linear-gradient(90deg,#f0f4f8,#e8f4f8);
+  position: relative;
+}
 .item-card img.loaded { opacity:1;}
-.item-info { padding:15px; flex-grow:1; overflow:auto; } 
-.item-info h3 { margin-bottom:5px; font-weight:600; }
-.item-info p { margin:2px 0; font-size:0.95rem; }
+.item-card img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+.item-info { 
+  padding:18px; 
+  flex-grow:1; 
+  overflow:auto; 
+}
+.item-info h3 { 
+  margin-bottom:8px; 
+  font-weight:600; 
+  color:#0D3B66;
+  font-size:1.1rem;
+  line-height:1.3;
+}
+.item-info p { 
+  margin:4px 0; 
+  font-size:0.95rem; 
+  color:#555;
+  line-height:1.5;
+}
 .item-info .upload-time { font-size:0.85rem; font-style:italic; color:#555; margin-top:8px; display:block; }
+body.dark .item-info p { color: #e0e0e0; }
 body.dark .item-info .upload-time { color: #cfcfcf; }
 .card-buttons { display:flex; flex-direction:column; gap:0; }
 
@@ -206,15 +433,23 @@ body.dark .item-info .upload-time { color: #cfcfcf; }
   position: absolute;
   top: 12px;
   right: 12px;
-  padding:6px 10px;
+  padding:7px 14px;
   border-radius: 999px;
   font-weight:700;
   font-size:0.75rem;
   color: white;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-  opacity: 0.95;
-  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.1);
+  opacity: 0.98;
+  backdrop-filter: blur(8px);
   text-transform: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+.category-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  opacity: 1;
 }
 
 /* Category colors */
@@ -227,31 +462,363 @@ body.dark .item-info .upload-time { color: #cfcfcf; }
 .badge-default { background: linear-gradient(90deg,#34495e,#2c3e50); }
 
 /* Buttons in cards */
-.contact-btn, .share-btn { border:none; padding:12px; cursor:pointer; font-weight:600; transition: all 0.3s ease; }
-.contact-btn { background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; border-radius: 0; }
-.contact-btn:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.02); box-shadow: 0 6px 24px rgba(0,166,251,0.15); }
-.share-btn { background: linear-gradient(90deg, #25D366, #128C7E); color:white; border-radius: 0 0 12px 12px; }
-.share-btn:hover { background: linear-gradient(90deg, #128C7E, #075E54); transform: scale(1.02); }
+.contact-btn, .share-btn, .delete-btn { 
+  border:none; 
+  padding:14px; 
+  cursor:pointer; 
+  font-weight:600; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  font-size:0.95rem;
+  letter-spacing: 0.3px;
+}
+.contact-btn { 
+  background: linear-gradient(90deg, #00A6FB, #2575fc); 
+  color:white; 
+  border-radius: 0; 
+  box-shadow: 0 2px 8px rgba(0,166,251,0.2);
+}
+.contact-btn:hover { 
+  background: linear-gradient(90deg, #6a11cb, #00c6ff); 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(0,166,251,0.35); 
+}
+.contact-btn:active {
+  transform: translateY(0);
+}
+.share-btn { 
+  background: linear-gradient(90deg, #25D366, #128C7E); 
+  color:white; 
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 2px 8px rgba(37,211,102,0.2);
+}
+.delete-btn { 
+  background: linear-gradient(90deg, #e74c3c, #c0392b); 
+  color:white; 
+  border-radius: 0; 
+  display:none;
+  box-shadow: 0 2px 8px rgba(231,76,60,0.2);
+}
+.delete-btn:hover { 
+  background: linear-gradient(90deg, #c0392b, #a93226); 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(231,76,60,0.35);
+}
+.delete-btn:active {
+  transform: translateY(0);
+}
+.moderator-mode .delete-btn { display:block; }
+.moderator-mode .share-btn { border-radius: 0; }
+.moderator-mode .delete-btn:last-child { border-radius: 0 0 16px 16px; }
+.share-btn:hover { 
+  background: linear-gradient(90deg, #128C7E, #075E54); 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(37,211,102,0.35);
+}
+.share-btn:active {
+  transform: translateY(0);
+}
 
 /* Form */
-form { display:flex; flex-direction:column; background: linear-gradient(135deg, #e0f7fa, #c0f0fa, #f0f4f8); padding:25px; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.1); margin-top:20px; transition: all 0.3s ease;}
-form input, form textarea, form select, form button { margin-bottom:12px; padding:12px; font-size:1rem; border-radius:12px; border:1px solid #ccc; outline:none; }
-form button { background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; font-weight:600; cursor:pointer; transition: all 0.3s ease; }
-form button:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.05); }
+form { 
+  display:flex; 
+  flex-direction:column; 
+  background: linear-gradient(135deg, rgba(224,247,250,0.95), rgba(192,240,250,0.95), rgba(240,244,248,0.95)); 
+  padding:30px; 
+  border-radius:20px; 
+  box-shadow:0 10px 30px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.5); 
+  margin-top:20px; 
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+form label { 
+  font-weight:600; 
+  color:#0D3B66; 
+  margin-bottom:8px; 
+  font-size:0.95rem;
+  display:block;
+}
+form input, form textarea, form select { 
+  margin-bottom:18px; 
+  padding:14px 16px; 
+  font-size:1rem; 
+  border-radius:12px; 
+  border:2px solid rgba(200,200,200,0.5); 
+  outline:none;
+  background: rgba(255,255,255,0.9);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: 'Roboto', sans-serif;
+}
+form input:focus, form textarea:focus, form select:focus {
+  border-color: #00A6FB;
+  box-shadow: 0 0 0 3px rgba(0,166,251,0.15), 0 4px 12px rgba(0,0,0,0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+form textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: 'Roboto', sans-serif;
+}
+form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230D3B66' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+form button { 
+  background: linear-gradient(90deg, #00A6FB, #2575fc); 
+  color:white; 
+  font-weight:600; 
+  cursor:pointer; 
+  transition: all 0.3s ease;
+  padding:14px 24px;
+  border: none;
+  border-radius:12px;
+  box-shadow: 0 4px 15px rgba(0,166,251,0.3);
+  font-size:1rem;
+  margin-top: 8px;
+}
+form button:hover { 
+  background: linear-gradient(90deg, #6a11cb, #00c6ff); 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,166,251,0.4);
+}
+form button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0,166,251,0.3);
+}
 
 /* Footer */
-footer { text-align:center; background: linear-gradient(135deg, #6a11cb, #2575fc); color:white; padding:15px; font-size:0.95rem; margin-top:40px; border-radius:12px 12px 0 0; }
+footer { 
+  text-align:center; 
+  background: linear-gradient(135deg, #6a11cb, #2575fc); 
+  color:white; 
+  padding:20px 15px; 
+  font-size:0.95rem; 
+  margin-top:40px; 
+  border-radius:16px 16px 0 0; 
+  box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shine 3s infinite;
+}
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+footer p {
+  position: relative;
+  z-index: 1;
+}
 
 /* Modal base */
-.modal { display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
+.modal { display:none; position:fixed; z-index:6000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
 .modal.show { display:block; animation: fadeIn 0.4s ease forwards; }
 @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
 
-.modal-content { background:white; margin:10% auto; padding:25px; border-radius:12px; width:90%; max-width:400px; text-align:center; box-shadow:0 6px 15px rgba(0,0,0,0.25); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; }
+.modal-content { background:white; margin:10% auto; padding:25px; border-radius:12px; width:90%; max-width:400px; text-align:center; box-shadow:0 6px 15px rgba(0,0,0,0.25); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; position:relative; z-index:6001; }
 @keyframes slideFadeIn { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
 
-.modal button { margin-top:15px; background: linear-gradient(90deg, #00A6FB, #2575fc); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:600; transition: all 0.3s ease;}
-.modal button:hover { background: linear-gradient(90deg, #6a11cb, #00c6ff); transform: scale(1.05); }
+/* Contact modal positioned near item card */
+.contact-modal-positioned { margin:0; position:fixed; }
+
+/* Login modal */
+.login-modal-content { 
+  background:white; 
+  margin:10% auto; 
+  padding:35px; 
+  border-radius:24px; 
+  width:90%; 
+  max-width:420px; 
+  box-shadow:0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1); 
+  transform: translateY(-20px); 
+  opacity:0; 
+  animation: slideFadeIn 0.4s forwards; 
+  position:relative;
+  backdrop-filter: blur(10px);
+}
+.login-modal-content h3 { 
+  font-size:1.75rem; 
+  margin-bottom:25px; 
+  color:#0D3B66; 
+  font-weight:700;
+  text-align: center;
+}
+.login-form { 
+  display:flex; 
+  flex-direction:column; 
+  gap:18px; 
+  text-align:left; 
+}
+.login-form label { 
+  font-weight:600; 
+  color:#0D3B66; 
+  font-size:0.95rem;
+  margin-bottom: 4px;
+}
+.login-form input { 
+  padding:14px 16px; 
+  border-radius:10px; 
+  border:2px solid rgba(200,200,200,0.5); 
+  font-size:1rem; 
+  transition: all 0.3s ease;
+  background: rgba(250,250,250,0.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.login-form input:focus {
+  outline: none;
+  border-color: #00A6FB;
+  box-shadow: 0 0 0 3px rgba(0,166,251,0.15), 0 4px 12px rgba(0,0,0,0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+.login-buttons { 
+  display:flex; 
+  gap:12px; 
+  justify-content:flex-end; 
+  margin-top:15px; 
+}
+.login-buttons button { 
+  padding:12px 24px; 
+  border-radius:10px; 
+  border:none; 
+  cursor:pointer; 
+  font-weight:600; 
+  transition:all 0.3s ease;
+  font-size:0.95rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.login-buttons .login-submit-btn { 
+  background:linear-gradient(90deg, #00A6FB, #2575fc); 
+  color:white;
+  box-shadow: 0 4px 15px rgba(0,166,251,0.3);
+}
+.login-buttons .login-submit-btn:hover { 
+  background:linear-gradient(90deg, #6a11cb, #00c6ff); 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,166,251,0.4);
+}
+.login-buttons .login-submit-btn:active {
+  transform: translateY(0);
+}
+.login-buttons .login-cancel-btn { 
+  background:linear-gradient(90deg, #e0e0e0, #d5d5d5); 
+  color:#333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.login-buttons .login-cancel-btn:hover { 
+  background:linear-gradient(90deg, #d0d0d0, #c5c5c5); 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.login-buttons .login-cancel-btn:active {
+  transform: translateY(0);
+}
+.login-error {
+  padding: 10px 12px;
+  background: rgba(231,76,60,0.1);
+  border-left: 4px solid #e74c3c;
+  border-radius: 6px;
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Logout button - 15% bigger, positioned in header */
+.logout-btn { background:linear-gradient(90deg, #e74c3c, #c0392b); color:white; border:none; padding:11.5px 23px; border-radius:9.2px; cursor:pointer; font-weight:600; font-size:1.15rem; display:none; box-shadow:0 4px 15px rgba(0,0,0,0.2); transition:all 0.3s ease; }
+.logout-btn.show { display:block; }
+.logout-btn:hover { background:linear-gradient(90deg, #c0392b, #a93226); transform:translateY(-2px); }
+
+/* Logout confirmation modal */
+.logout-confirm-modal .modal-content { max-width:350px; }
+.logout-confirm-buttons { 
+  display:flex; 
+  gap:12px; 
+  justify-content:center; 
+  margin-top:25px; 
+}
+.logout-confirm-buttons button { 
+  padding:12px 28px; 
+  border-radius:10px; 
+  border:none; 
+  cursor:pointer; 
+  font-weight:600; 
+  transition:all 0.3s ease;
+  font-size:1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.logout-confirm-buttons .confirm-yes { 
+  background:linear-gradient(90deg, #e74c3c, #c0392b); 
+  color:white;
+  box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+}
+.logout-confirm-buttons .confirm-yes:hover { 
+  background:linear-gradient(90deg, #c0392b, #a93226); 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231,76,60,0.4);
+}
+.logout-confirm-buttons .confirm-yes:active {
+  transform: translateY(0);
+}
+.logout-confirm-buttons .confirm-no { 
+  background:linear-gradient(90deg, #e0e0e0, #d5d5d5); 
+  color:#333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.logout-confirm-buttons .confirm-no:hover { 
+  background:linear-gradient(90deg, #d0d0d0, #c5c5c5); 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.logout-confirm-buttons .confirm-no:active {
+  transform: translateY(0);
+}
+
+/* Single item view modal */
+.single-item-modal-content { background:white; margin:5% auto; padding:25px; border-radius:20px; width:90%; max-width:600px; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; position:relative; max-height:90vh; overflow-y:auto; }
+.single-item-close-btn { position:absolute; top:15px; right:20px; background:transparent; border:none; font-size:28px; color:#666; cursor:pointer; transition:all 0.3s ease; padding:5px 10px; }
+.single-item-close-btn:hover { color:#E91E63; transform:rotate(90deg); }
+.single-item-content { display:flex; flex-direction:column; gap:15px; }
+.single-item-content img { width:100%; max-height:300px; object-fit:contain; border-radius:8px; }
+.single-item-content h3 { color:#0D3B66; margin-top:10px; }
+
+.modal button { 
+  margin-top:15px; 
+  background: linear-gradient(90deg, #00A6FB, #2575fc); 
+  color:white; 
+  border:none; 
+  padding:12px 20px; 
+  border-radius:10px; 
+  cursor:pointer; 
+  font-weight:600; 
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,166,251,0.3);
+  font-size:1rem;
+}
+.modal button:hover { 
+  background: linear-gradient(90deg, #6a11cb, #00c6ff); 
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,166,251,0.4);
+}
+.modal button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0,166,251,0.3);
+}
 
 /* Share modal specifics */
 .share-modal-content { background:white; margin:8% auto; padding:30px; border-radius:20px; width:90%; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,0.3); transform: translateY(-20px); opacity:0; animation: slideFadeIn 0.4s forwards; position:relative; }
@@ -261,8 +828,43 @@ footer { text-align:center; background: linear-gradient(135deg, #6a11cb, #2575fc
 
 /* Share options */
 .share-options { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
-.share-option { display:flex; align-items:center; gap:15px; padding:15px 20px; background: linear-gradient(135deg, #f9f9f9, #e8f4f8); border-radius:12px; cursor:pointer; transition:all 0.3s ease; border:2px solid transparent; }
-.share-option:hover { transform:translateX(5px); box-shadow:0 8px 24px rgba(0,0,0,0.12); border-color:#2575fc; }
+.share-option { 
+  display:flex; 
+  align-items:center; 
+  gap:15px; 
+  padding:16px 20px; 
+  background: linear-gradient(135deg, rgba(249,249,249,0.95), rgba(232,244,248,0.95)); 
+  border-radius:14px; 
+  cursor:pointer; 
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  border:2px solid transparent; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+.share-option::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(180deg, #2575fc, #6a11cb);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
+}
+.share-option:hover { 
+  transform:translateX(8px); 
+  box-shadow:0 8px 24px rgba(0,0,0,0.15), 0 0 0 1px rgba(37,117,252,0.2); 
+  border-color:#2575fc;
+  background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,248,255,0.98));
+}
+.share-option:hover::before {
+  transform: scaleY(1);
+}
+.share-option:active {
+  transform: translateX(4px);
+}
 .share-icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:22px; }
 .share-option.whatsapp .share-icon { background:#25D366; color:white; }
 .share-option.instagram .share-icon { background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color:white; }
@@ -361,19 +963,26 @@ body.dark .image-modal-content { background: #111; }
 
 <!-- Header -->
 <header>
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="header-left">
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
   <h1>Lost & Found Campus Portal</h1>
 
-  <!-- Theme toggle -->
-  <div class="theme-toggle" onclick="toggleTheme()" role="button" aria-pressed="false" aria-label="Toggle theme">
-    <div class="theme-slider day" id="themeSlider"></div>
-    <div class="theme-option day active" id="dayMode">
-      <span class="theme-icon">☀</span>
-      <span>LIGHT MODE</span>
-    </div>
-    <div class="theme-option night" id="nightMode">
-      <span class="theme-icon">🌙</span>
-      <span>DARK MODE</span>
+  <div class="header-right">
+    <!-- Logout Button -->
+    <button id="logoutBtn" class="logout-btn" onclick="openLogoutConfirm()">Log Out</button>
+    
+    <!-- Theme toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()" role="button" aria-pressed="false" aria-label="Toggle theme">
+      <div class="theme-slider day" id="themeSlider"></div>
+      <div class="theme-option day active" id="dayMode">
+        <span class="theme-icon">☀</span>
+        <span>LIGHT MODE</span>
+      </div>
+      <div class="theme-option night" id="nightMode">
+        <span class="theme-icon">🌙</span>
+        <span>DARK MODE</span>
+      </div>
     </div>
   </div>
 </header>
@@ -389,6 +998,8 @@ body.dark .image-modal-content { background: #111; }
   <a href="#" onclick="event.preventDefault(); showSection('Accessories')">🎒 Accessories</a>
   <a href="#" onclick="event.preventDefault(); showSection('Personal Documents')">🗂 Personal Documents</a>
   <a href="#" onclick="event.preventDefault(); showSection('Others')">🛍 Others</a>
+  <hr style="border: 1px solid #004ea1; margin: 10px 0;">
+  <a href="#" class="moderator-link" onclick="event.preventDefault(); openLoginModal()">🔐 Moderator Login</a>
 </div>
 
 <main>
@@ -512,6 +1123,46 @@ body.dark .image-modal-content { background: #111; }
 <!-- Copied notification -->
 <div id="copiedNotification" class="copied-notification">✓ Link copied to clipboard!</div>
 
+<!-- Login Modal -->
+<div id="loginModal" class="modal" role="dialog" aria-modal="true">
+  <div class="login-modal-content" role="document">
+    <h3>Moderator Login</h3>
+    <form class="login-form" id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+      <label for="loginUsername">Username:</label>
+      <input type="text" id="loginUsername" required autocomplete="username" />
+      <label for="loginPassword">Password:</label>
+      <input type="password" id="loginPassword" required autocomplete="current-password" />
+      <div class="login-error" id="loginError">Wrong Username or Password. Try Again!</div>
+      <div class="login-buttons">
+        <button type="button" class="login-cancel-btn" onclick="closeLoginModal()">Cancel</button>
+        <button type="submit" class="login-submit-btn">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutConfirmModal" class="modal logout-confirm-modal" role="dialog" aria-modal="true">
+  <div class="modal-content" role="document">
+    <h3>Logout Confirmation</h3>
+    <p>Do you want to log out?</p>
+    <div class="logout-confirm-buttons">
+      <button class="confirm-no" onclick="closeLogoutConfirm()">No</button>
+      <button class="confirm-yes" onclick="handleLogout()">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Single Item View Modal (for shared URLs) -->
+<div id="singleItemModal" class="modal" role="dialog" aria-modal="true">
+  <div class="single-item-modal-content" role="document">
+    <button class="single-item-close-btn" onclick="closeSingleItemModal()" aria-label="Close">×</button>
+    <div class="single-item-content" id="singleItemContent">
+      <!-- Content will be dynamically inserted -->
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================
    JavaScript with inline comments
@@ -545,6 +1196,13 @@ const imageCloseBtn = document.getElementById('imageCloseBtn');
 
 let currentCategory = "All";
 let currentShareItem = null;
+let isModeratorLoggedIn = false;
+let currentContactModalCard = null;
+const loginModal = document.getElementById('loginModal');
+const logoutBtn = document.getElementById('logoutBtn');
+const logoutConfirmModal = document.getElementById('logoutConfirmModal');
+const singleItemModal = document.getElementById('singleItemModal');
+const singleItemContent = document.getElementById('singleItemContent');
 
 /* Sidebar toggles */
 function openMenu(){ sidebarMenu.classList.add('open'); sidebarMenu.setAttribute('aria-hidden','false'); }
@@ -552,13 +1210,187 @@ function closeMenu(){ sidebarMenu.classList.remove('open'); sidebarMenu.setAttri
 function toggleMenu(){ if(sidebarMenu.classList.contains('open')) closeMenu(); else openMenu(); }
 sidebarToggle.addEventListener('click', toggleMenu);
 
-/* Contact modal display */
-function contactUploader(contactInfo){
+/* Contact modal display - positioned near item card */
+function contactUploader(contactInfo, cardElement){
+  currentContactModalCard = cardElement;
   const safeContact = contactInfo ? escapeHtml(String(contactInfo)) : 'No contact provided';
-  contactDetails.innerHTML = `You can reach the finder at:<br><strong>${safeContact}</strong>`;
+  
+  // Create clickable link - compatible with all devices
+  let contactHtml = `You can reach the finder at:<br><strong>`;
+  if(isPhoneNumber(contactInfo)){
+    // Open call app (works on mobile devices; on desktop may copy or prompt)
+    const phoneNumber = String(contactInfo).replace(/\s/g,'');
+    const telLink = `tel:${phoneNumber}`;
+    contactHtml += `<a href="${telLink}" style="color:#00A6FB; text-decoration:none; cursor:pointer;" onclick="event.preventDefault(); window.location.href='${telLink}'; return false;">${safeContact}</a>`;
+  } else if(isEmail(contactInfo)){
+    // Open Gmail (app on mobile, web on desktop/tablet)
+    const emailAddress = String(contactInfo).trim();
+    const gmailUrl = getGmailUrl(emailAddress);
+    if(isMobileDevice()){
+      // On mobile, use onclick to handle app/web fallback
+      contactHtml += `<a href="${gmailUrl}" style="color:#00A6FB; text-decoration:none; cursor:pointer;" onclick="event.preventDefault(); openGmail('${escapeHtml(emailAddress)}'); return false;">${safeContact}</a>`;
+    } else {
+      // On desktop/tablet, open in new tab
+      contactHtml += `<a href="${gmailUrl}" target="_blank" style="color:#00A6FB; text-decoration:none; cursor:pointer;">${safeContact}</a>`;
+    }
+  } else {
+    contactHtml += safeContact;
+  }
+  contactHtml += `</strong>`;
+  
+  contactDetails.innerHTML = contactHtml;
+  
+  // Position modal directly in front of the clicked card
+  const modalContent = modal.querySelector('.modal-content');
+  if(cardElement){
+    const rect = cardElement.getBoundingClientRect(); // getBoundingClientRect already gives viewport coordinates
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const modalWidth = 400; // max-width of modal
+    const cardCenterX = rect.left + rect.width / 2;
+    
+    // Center the modal horizontally with the card (using viewport coordinates since we use position: fixed)
+    let leftPos = cardCenterX - (modalWidth / 2);
+    
+    // Adjust if modal would go off screen on the right
+    if(leftPos + modalWidth > viewportWidth - 20){
+      leftPos = viewportWidth - modalWidth - 20;
+    }
+    // Adjust if modal would go off screen on the left
+    if(leftPos < 20){
+      leftPos = 20;
+    }
+    
+    // Position vertically: try to center over the card, but adjust if needed
+    const modalHeight = 200; // approximate height
+    let topPos = rect.top + (rect.height / 2) - (modalHeight / 2);
+    
+    // If modal would go above viewport, position it below the card
+    if(topPos < 20){
+      topPos = rect.bottom + 15;
+    }
+    // If modal would go below viewport, position it above the card
+    else if(topPos + modalHeight > viewportHeight - 20){
+      topPos = rect.top - modalHeight - 15;
+      // If still doesn't fit above, position it below
+      if(topPos < 20){
+        topPos = rect.bottom + 15;
+      }
+    }
+    
+    modalContent.style.position = 'fixed'; // Use fixed to ensure it's relative to viewport and above all content
+    modalContent.style.top = topPos + 'px';
+    modalContent.style.left = leftPos + 'px';
+    modalContent.style.margin = '0';
+    modalContent.style.transform = 'translateY(0)';
+    modalContent.style.maxWidth = modalWidth + 'px';
+    modalContent.style.zIndex = '6002'; // Highest z-index to ensure it's in front of everything
+    modalContent.classList.add('contact-modal-positioned');
+  } else {
+    modalContent.style.position = '';
+    modalContent.style.top = '';
+    modalContent.style.left = '';
+    modalContent.style.margin = '10% auto';
+    modalContent.style.transform = '';
+    modalContent.style.maxWidth = '';
+    modalContent.style.zIndex = '';
+    modalContent.classList.remove('contact-modal-positioned');
+  }
+  
   modal.classList.add('show');
 }
-function closeModal(){ modal.classList.remove('show'); }
+function closeModal(){ 
+  modal.classList.remove('show'); 
+  currentContactModalCard = null;
+  const modalContent = modal.querySelector('.modal-content');
+  modalContent.classList.remove('contact-modal-positioned');
+  modalContent.style.position = '';
+  modalContent.style.top = '';
+  modalContent.style.left = '';
+  modalContent.style.margin = '10% auto';
+  modalContent.style.transform = '';
+  modalContent.style.maxWidth = '';
+  modalContent.style.zIndex = '';
+}
+
+/* Check if string is phone number */
+function isPhoneNumber(str){
+  if(!str) return false;
+  const cleaned = String(str).replace(/\s/g,'');
+  return /^[\d\+\-\(\)]{7,15}$/.test(cleaned);
+}
+
+/* Check if string is email */
+function isEmail(str){
+  if(!str) return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(str).trim());
+}
+
+/* Detect if device is mobile/tablet */
+function isMobileDevice(){
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+         (typeof window.orientation !== 'undefined') || 
+         (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+}
+
+/* Detect iOS device */
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+/* Detect Android device */
+function isAndroid(){
+  return /Android/.test(navigator.userAgent);
+}
+
+/* Get Gmail URL based on device - opens Gmail app on mobile, web on desktop */
+function getGmailUrl(email){
+  const encodedEmail = encodeURIComponent(email);
+  
+  if(isIOS()){
+    // iOS: Try Gmail app first, fallback to web
+    return `googlegmail://co?to=${encodedEmail}`;
+  } else if(isAndroid()){
+    // Android: Use Intent URL with web fallback
+    const webFallback = `https://mail.google.com/mail/?view=cm&to=${encodedEmail}`;
+    return `intent://send?to=${encodedEmail}#Intent;scheme=mailto;package=com.google.android.gm;S.browser_fallback_url=${encodeURIComponent(webFallback)};end`;
+  } else {
+    // Desktop/Tablet: Use web Gmail
+    return `https://mail.google.com/mail/?view=cm&to=${encodedEmail}`;
+  }
+}
+
+/* Open Gmail with fallback handling */
+function openGmail(email){
+  const gmailUrl = getGmailUrl(email);
+  
+  if(isIOS() || isAndroid()){
+    // For mobile, try app first, then fallback to web after timeout
+    const webGmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}`;
+    let fallbackTriggered = false;
+    
+    const fallbackTimer = setTimeout(() => {
+      if(!fallbackTriggered){
+        fallbackTriggered = true;
+        window.location.href = webGmailUrl;
+      }
+    }, 500);
+    
+    window.location.href = gmailUrl;
+    
+    // Clear timeout if app opens successfully (user interaction)
+    document.addEventListener('visibilitychange', function handler(){
+      if(document.hidden){
+        clearTimeout(fallbackTimer);
+        fallbackTriggered = true;
+      }
+      document.removeEventListener('visibilitychange', handler);
+    });
+  } else {
+    // Desktop: open in new tab
+    window.open(gmailUrl, '_blank');
+  }
+}
 
 /* Share modal */
 function openShareModal(item){
@@ -570,11 +1402,16 @@ function closeShareModal(){ shareModal.classList.remove('show'); currentShareIte
 /* Share actions */
 function shareVia(platform){
   if(!currentShareItem) return;
+  if(!currentShareItem.id) currentShareItem.id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  
   const itemText = `Found Item: ${currentShareItem.name}\n${currentShareItem.description}\nLocation: ${currentShareItem.location}\nContact: ${currentShareItem.contact}`;
-  const itemUrl = window.location.href;
+  const baseUrl = window.location.origin + window.location.pathname;
+  const itemUrl = baseUrl + '?item=' + encodeURIComponent(currentShareItem.id);
+  const shareText = itemText + '\n\nView item: ' + itemUrl;
+  
   switch(platform){
     case 'whatsapp':
-      window.open(`https://wa.me/?text=${encodeURIComponent(itemText + '\n' + itemUrl)}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
       break;
     case 'instagram':
       alert('Instagram sharing works best through the mobile app. Please use the copy link option and paste in Instagram DM or Story!');
@@ -583,15 +1420,14 @@ function shareVia(platform){
       window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(itemText)}&url=${encodeURIComponent(itemUrl)}`, '_blank');
       break;
     case 'email':
-      window.location.href = `mailto:?subject=${encodeURIComponent('Found Item: ' + currentShareItem.name)}&body=${encodeURIComponent(itemText + '\n\n' + itemUrl)}`;
+      window.location.href = `mailto:?subject=${encodeURIComponent('Found Item: ' + currentShareItem.name)}&body=${encodeURIComponent(shareText)}`;
       break;
     case 'copy':
-      const textToCopy = itemText + '\n\n' + itemUrl;
-      navigator.clipboard.writeText(textToCopy).then(()=>{
+      navigator.clipboard.writeText(itemUrl).then(()=>{
         copiedNotification.classList.add('show');
         setTimeout(()=>{copiedNotification.classList.remove('show');},2500);
       }).catch(()=>{
-        alert('Failed to copy. Please copy manually:\n\n'+textToCopy);
+        alert('Failed to copy. Please copy manually:\n\n'+itemUrl);
       });
       break;
   }
@@ -603,6 +1439,9 @@ window.onclick = e => {
   if(e.target === modal) closeModal();
   if(e.target === shareModal) closeShareModal();
   if(e.target === imageModal) closeImageModal();
+  if(e.target === loginModal) closeLoginModal();
+  if(e.target === logoutConfirmModal) closeLogoutConfirm();
+  if(e.target === singleItemModal) closeSingleItemModal();
 };
 
 /* Theme toggle logic */
@@ -699,6 +1538,8 @@ const PLACEHOLDER_SRC = `data:image/svg+xml;charset=utf-8,${PLACEHOLDER_SVG}`;
 function createItemCard(item){
   const card = document.createElement('div');
   card.className = 'item-card loaded';
+  if(!item.id) item.id = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  card.setAttribute('data-item-id', item.id);
 
   // category badge
   const badge = document.createElement('div');
@@ -750,15 +1591,21 @@ function createItemCard(item){
   const contactBtn = document.createElement('button');
   contactBtn.className = 'contact-btn';
   contactBtn.textContent = 'Contact Finder';
-  contactBtn.addEventListener('click', ()=> contactUploader(item.contact));
+  contactBtn.addEventListener('click', ()=> contactUploader(item.contact, card));
 
   const shareBtn = document.createElement('button');
   shareBtn.className = 'share-btn';
   shareBtn.textContent = '📤 Share Item';
   shareBtn.addEventListener('click', ()=> openShareModal(item));
 
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.textContent = '🗑 Delete';
+  deleteBtn.addEventListener('click', ()=> deleteItem(item.id));
+
   btnWrap.appendChild(contactBtn);
   btnWrap.appendChild(shareBtn);
+  btnWrap.appendChild(deleteBtn);
 
   card.appendChild(img);
   card.appendChild(info);
@@ -772,6 +1619,15 @@ function loadItems(){
   const items = JSON.parse(localStorage.getItem('foundItems')) || [];
   const searchTerm = (searchInput.value || '').toLowerCase().trim();
   itemsContainer.innerHTML = '';
+
+  // Add IDs to items that don't have them
+  items.forEach((item, index) => {
+    if(!item.id) {
+      item.id = 'item_' + (item.timestamp || Date.now()) + '_' + index;
+    }
+  });
+  // Save back with IDs
+  localStorage.setItem('foundItems', JSON.stringify(items));
 
   const selectedCategoryNormalized = normalizeCategory(currentCategory);
   const filtered = items.filter(i => {
@@ -802,6 +1658,13 @@ function loadItems(){
     const card = createItemCard(item);
     itemsContainer.appendChild(card);
   });
+  
+  // Apply moderator mode styling
+  if(isModeratorLoggedIn){
+    document.body.classList.add('moderator-mode');
+  } else {
+    document.body.classList.remove('moderator-mode');
+  }
 }
 
 /* ===== IMAGE modal open/close ===== */
@@ -825,8 +1688,121 @@ window.addEventListener('keydown', function(e){
     if(imageModal.classList.contains('show')) closeImageModal();
     if(shareModal.classList.contains('show')) closeShareModal();
     if(modal.classList.contains('show')) closeModal();
+    if(loginModal.classList.contains('show')) closeLoginModal();
+    if(logoutConfirmModal.classList.contains('show')) closeLogoutConfirm();
+    if(singleItemModal.classList.contains('show')) closeSingleItemModal();
   }
 });
+
+/* ===== MODERATOR LOGIN FUNCTIONS ===== */
+function openLoginModal(){
+  if(isModeratorLoggedIn) return;
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  loginModal.classList.add('show');
+}
+
+function closeLoginModal(){
+  loginModal.classList.remove('show');
+}
+
+function handleLogin(){
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errorDiv = document.getElementById('loginError');
+  
+  // Hide error initially
+  errorDiv.classList.remove('show');
+  
+  if(username === 'SnpsuL&F' && password === 'Rockpapper+scissors@train5'){
+    isModeratorLoggedIn = true;
+    localStorage.setItem('moderatorLoggedIn', 'true');
+    errorDiv.classList.remove('show'); // Make sure error is hidden on success
+    closeLoginModal();
+    logoutBtn.classList.add('show');
+    document.body.classList.add('moderator-mode');
+    loadItems(); // Reload to show delete buttons
+    alert('Login successful! You now have moderator access.');
+  } else if(username !== '' || password !== '') {
+    // Only show error if user has entered something (not empty)
+    errorDiv.classList.add('show');
+  }
+}
+
+function openLogoutConfirm(){
+  logoutConfirmModal.classList.add('show');
+}
+
+function closeLogoutConfirm(){
+  logoutConfirmModal.classList.remove('show');
+}
+
+function handleLogout(){
+  isModeratorLoggedIn = false;
+  localStorage.removeItem('moderatorLoggedIn');
+  closeLogoutConfirm();
+  logoutBtn.classList.remove('show');
+  document.body.classList.remove('moderator-mode');
+  loadItems(); // Reload to hide delete buttons
+}
+
+function deleteItem(itemId){
+  if(!isModeratorLoggedIn) return;
+  if(!confirm('Are you sure you want to delete this item?')) return;
+  
+  const items = JSON.parse(localStorage.getItem('foundItems')) || [];
+  const filtered = items.filter(item => item.id !== itemId);
+  localStorage.setItem('foundItems', JSON.stringify(filtered));
+  loadItems();
+}
+
+/* Check if moderator was logged in on page load */
+function checkModeratorStatus(){
+  const saved = localStorage.getItem('moderatorLoggedIn');
+  if(saved === 'true'){
+    isModeratorLoggedIn = true;
+    logoutBtn.classList.add('show');
+    document.body.classList.add('moderator-mode');
+  }
+}
+
+/* ===== SINGLE ITEM VIEW (for shared URLs) ===== */
+function openSingleItemModal(item){
+  const itemHtml = `
+    <img src="${item.photo || PLACEHOLDER_SRC}" alt="${escapeHtml(item.name || 'Item')}" onerror="this.src='${PLACEHOLDER_SRC}'" />
+    <div class="category-badge ${getBadgeClass(item.category)}" style="position:relative; display:inline-block; margin-top:10px;">${escapeHtml(item.category || 'Others')}</div>
+    <h3>${escapeHtml(item.name || '')}</h3>
+    <p><strong>Description:</strong> ${escapeHtml(item.description || '')}</p>
+    <p><strong>Pickup Location:</strong> ${escapeHtml(item.location || '')}</p>
+    <p><strong>Contact:</strong> ${escapeHtml(item.contact || '')}</p>
+    <p style="font-size:0.9rem; color:#666; margin-top:15px;"><em>Uploaded On: ${formatDate(item.timestamp || Date.now())}</em></p>
+  `;
+  singleItemContent.innerHTML = itemHtml;
+  singleItemModal.classList.add('show');
+}
+
+function closeSingleItemModal(){
+  singleItemModal.classList.remove('show');
+  setTimeout(()=>{ singleItemContent.innerHTML = ''; }, 300);
+  // Remove item parameter from URL
+  const url = new URL(window.location);
+  url.searchParams.delete('item');
+  window.history.replaceState({}, '', url);
+}
+
+/* Check URL for item parameter on load */
+function checkForSharedItem(){
+  const urlParams = new URLSearchParams(window.location.search);
+  const itemId = urlParams.get('item');
+  if(itemId){
+    const items = JSON.parse(localStorage.getItem('foundItems')) || [];
+    const item = items.find(i => i.id === itemId);
+    if(item){
+      setTimeout(()=>{ openSingleItemModal(item); }, 500);
+    }
+  }
+}
 
 /* ===== Image file resize helper (reduces size to avoid localStorage QUOTA errors) ===== */
 function resizeImageFileToDataURL(file, maxWidth = 1200, maxHeight = 1200, outputType = 'image/jpeg', quality = 0.8){
@@ -915,8 +1891,9 @@ uploadForm.addEventListener('submit', async function(e){
       });
     }
 
-    // Build item object
+    // Build item object with unique ID
     const newItem = {
+      id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2,9),
       name,
       description,
       category,
@@ -964,6 +1941,8 @@ searchInput.addEventListener('input', loadItems);
 
 /* Initial load */
 document.addEventListener('DOMContentLoaded', function(){
+  checkModeratorStatus();
+  checkForSharedItem();
   showSection('All');
   loadItems();
 });
